@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="정보시스템 감리 제안서 평가 질의 답변 검색 시스템">
+  <title>정보시스템 감리 제안서 평가 Q&A</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-badge">Information System Audit</div>
+      <h1 class="site-title">정보시스템 감리 제안서 평가<br>질의 답변 시스템</h1>
+      
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+
+    <section class="search-section" aria-label="질의 검색">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </span>
+        <input
+          type="search"
+          id="search-input"
+          placeholder="질문이나 키워드를 검색하세요 (예: OCR, 데이터 이관, 베트남, 보안...)"
+          aria-label="질의 검색"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="clear-btn" aria-label="검색어 지우기" title="지우기">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <section class="filter-section" aria-label="카테고리 필터">
+      <div id="category-filters" role="group" aria-label="카테고리 선택"></div>
+    </section>
+
+    <div class="toolbar">
+      <span id="result-count" aria-live="polite" aria-atomic="true"></span>
+      <button id="expand-all-btn">전체 펼치기</button>
+    </div>
+
+    <div id="loading-state" class="loading-state" aria-live="polite">
+      <div class="loading-spinner"></div>
+      <p>데이터를 불러오는 중...</p>
+    </div>
+
+    <section id="qna-list" aria-label="질의응답 목록"></section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
