@@ -1,7 +1,7 @@
 // ── MD 파서 ──────────────────────────────────────────────────────────────────
 // qna-data.md 형식:
 //
-//   # 카테고리명 | categoryKey
+//   # 카테고리명 | categoryKey | 태그 (쉼표 구분, 선택사항)
 //
 //   ## 질문 제목
 //
@@ -27,11 +27,12 @@ function parseMarkdown(md) {
 
     const firstNewline = trimmed.indexOf("\n");
     const catLine = (firstNewline === -1 ? trimmed : trimmed.slice(0, firstNewline)).slice(2).trim();
-    const pipeIdx = catLine.indexOf("|");
-    if (pipeIdx === -1) continue;
+    const parts = catLine.split("|").map(s => s.trim());
+    if (parts.length < 2) continue;
 
-    const category = catLine.slice(0, pipeIdx).trim();
-    const categoryKey = catLine.slice(pipeIdx + 1).trim();
+    const category = parts[0];
+    const categoryKey = parts[1];
+    const tags = parts[2] ? parts[2].split(",").map(t => t.trim()).filter(Boolean) : [];
 
     // Q&A 블록 분리 (## 기준)
     const qnaBlocks = trimmed.split(/\n(?=## )/);
@@ -83,7 +84,7 @@ function parseMarkdown(md) {
       }
 
       if (question) {
-        items.push({ id: id++, category, categoryKey, question, questionDetail, answer, bullets });
+        items.push({ id: id++, category, categoryKey, tags, question, questionDetail, answer, bullets });
       }
     }
   }
@@ -107,11 +108,29 @@ function buildCategories(data) {
   return cats;
 }
 
+// ── 태그 목록 (MD에서 등장 순서대로 자동 생성) ──────────────────────────────
+
+function buildTags(data) {
+  const seen = new Set();
+  const tags = [];
+  for (const item of data) {
+    for (const tag of item.tags) {
+      if (!seen.has(tag)) {
+        seen.add(tag);
+        tags.push(tag);
+      }
+    }
+  }
+  return tags;
+}
+
 // ── 상태 ──────────────────────────────────────────────────────────────────────
 
 let QNA_DATA = [];
 let CATEGORIES = [];
+let TAGS = [];
 let activeCategory = "all";
+let activeTag = "all";
 let searchQuery = "";
 let expandedIds = new Set();
 
@@ -141,11 +160,44 @@ function matchesSearch(item, query) {
 function getFilteredData() {
   return QNA_DATA.filter(item => {
     const catMatch = activeCategory === "all" || item.categoryKey === activeCategory;
-    return catMatch && matchesSearch(item, searchQuery);
+    const tagMatch = activeTag === "all" || item.tags.includes(activeTag);
+    return catMatch && tagMatch && matchesSearch(item, searchQuery);
   });
 }
 
 // ── 렌더 ──────────────────────────────────────────────────────────────────────
+
+function renderTags() {
+  const container = document.getElementById("tag-filters");
+  if (!container) return;
+
+  if (TAGS.length === 0) {
+    container.parentElement.style.display = "none";
+    return;
+  }
+  container.parentElement.style.display = "";
+
+  const allTags = [{ key: "all", label: "전체 사업" }, ...TAGS.map(t => ({ key: t, label: t }))];
+  container.innerHTML = allTags.map(t => `
+    <button
+      class="tag-btn ${activeTag === t.key ? "active" : ""}"
+      data-key="${t.key}"
+      aria-pressed="${activeTag === t.key}"
+    >${t.label}</button>
+  `).join("");
+
+  container.querySelectorAll(".tag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeTag = btn.dataset.key;
+      // 태그 변경 시 카테고리 초기화
+      activeCategory = "all";
+      renderTags();
+      renderCategories();
+      renderCards();
+      updateCount();
+    });
+  });
+}
 
 function renderCategories() {
   const container = document.getElementById("category-filters");
@@ -192,11 +244,16 @@ function renderCards() {
         <span class="bullet-content">${highlight(b.content, searchQuery)}</span>
       </li>`).join("");
 
+    const tagsHtml = item.tags.map(t => `<span class="business-tag">${t}</span>`).join("");
+
     return `
       <article class="qna-card ${isExpanded ? "expanded" : ""}" data-id="${item.id}">
         <button class="card-header" aria-expanded="${isExpanded}" aria-controls="answer-${item.id}">
           <div class="card-header-left">
-            <span class="category-tag cat-${item.categoryKey}">${item.category}</span>
+            <div class="tag-row">
+              ${tagsHtml}
+              <span class="category-tag cat-${item.categoryKey}">${item.category}</span>
+            </div>
             <div class="question-wrap">
               <span class="question-text">${q}</span>
               ${qd ? `<span class="question-detail">${qd}</span>` : ""}
@@ -280,7 +337,9 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(text => {
       QNA_DATA = parseMarkdown(text);
       CATEGORIES = buildCategories(QNA_DATA);
+      TAGS = buildTags(QNA_DATA);
       document.getElementById("loading-state").style.display = "none";
+      renderTags();
       renderCategories();
       renderCards();
       updateCount();

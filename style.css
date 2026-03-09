@@ -194,6 +194,60 @@ body {
   background: #d1dffe;
 }
 
+/* Tag (Business) filters */
+.tag-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tag-section::-webkit-scrollbar { display: none; }
+
+.tag-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#tag-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 2px solid #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.tag-btn:hover {
+  border-color: #4338ca;
+  background: #e0e7ff;
+}
+
+.tag-btn.active {
+  background: #4338ca;
+  border-color: #4338ca;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(67,56,202,0.25);
+}
+
 /* Category filters */
 .filter-section {
   margin-bottom: 20px;
@@ -281,6 +335,25 @@ body {
   flex: 1;
 }
 
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.business-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
 .category-tag {
   display: inline-block;
   font-size: 11px;
@@ -288,7 +361,6 @@ body {
   letter-spacing: 0.04em;
   padding: 3px 10px;
   border-radius: 20px;
-  align-self: flex-start;
 }
 
 .cat-ai-performance  { background: var(--cat-ai-performance-bg);  color: var(--cat-ai-performance); }
